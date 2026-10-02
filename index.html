@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
+<title>Uniq Pro — Video Studio</title>
+
+<style>
+:root{
+  --bg:#eef0f7;
+  --card:#fff;
+  --text:#151623;
+  --muted:#72768b;
+  --border:#dfe2ec;
+  --input:#f3f4f9;
+  --accent:#7657ff;
+  --accent2:#16c7e8;
+  --danger:#e74c3c;
+}
+
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#090a11;
+    --card:#13151e;
+    --text:#f1f2f8;
+    --muted:#9297ad;
+    --border:#272a3a;
+    --input:#0e1018;
+  }
+}
+
+*{box-sizing:border-box}
+
+html{min-height:100%}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  -webkit-tap-highlight-color:transparent;
+}
+
+button,input{font:inherit}
+
+button{cursor:pointer}
+
+.app{
+  width:100%;
+  max-width:1100px;
+  margin:auto;
+  padding:
+    calc(16px + env(safe-area-inset-top))
+    16px
+    calc(25px + env(safe-area-inset-bottom));
+}
+
+header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:16px;
+}
+
+.logo{
+  font-size:23px;
+  font-weight:900;
+  letter-spacing:-.7px;
+}
+
+.logo span{
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+.status-chip{
+  max-width:220px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  padding:6px 11px;
+  border:1px solid var(--border);
+  border-radius:20px;
+  background:var(--card);
+  color:var(--muted);
+  font-size:12px;
+}
+
+.grid{
+  display:grid;
+  gap:14px;
+}
+
+@media(min-width:820px){
+  .grid{
+    grid-template-columns:1fr 1fr;
+    align-items:start;
+  }
+
+  .sticky{
+    position:sticky;
+    top:16px;
+  }
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:22px;
+  padding:16px;
+  margin-bottom:14px;
+}
+
+.title{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:12px;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.7px;
+}
+
+.number{
+  display:grid;
+  place-items:center;
+  width:21px;
+  height:21px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:white;
+  font-size:11px;
+}
+
+.stage{
+  position:relative;
+  min-height:350px;
+  padding:12px;
+  display:grid;
+  place-items:center;
+  overflow:hidden;
+  border-radius:18px;
+  background:var(--input);
+}
+
+#preview{
+  display:none;
+  max-width:100%;
+  max-height:65vh;
+  border-radius:13px;
+  background:#000;
+  box-shadow:0 15px 45px rgba(0,0,0,.35);
+}
+
+.upload{
+  width:100%;
+  min-height:280px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  cursor:pointer;
+  border:2px dashed var(--border);
+  border-radius:18px;
+  color:var(--muted);
+}
+
+.upload:active{
+  transform:scale(.99);
+}
+
+.upload-icon{
+  font-size:48px;
+  margin-bottom:8px;
+}
+
+.upload strong{
+  color:var(--text);
+  font-size:18px;
+}
+
+.upload small{
+  margin-top:5px;
+  font-size:12px;
+}
+
+#fileInput{
+  position:absolute;
+  width:1px;
+  height:1px;
+  opacity:0;
+}
+
+.preview-tools{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+  margin-top:10px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.small-btn{
+  border:1px solid var(--border);
+  background:var(--input);
+  color:var(--text);
+  border-radius:12px;
+  padding:8px 12px;
+}
+
+.segment{
+  display:flex;
+  gap:3px;
+  padding:3px;
+  margin-bottom:12px;
+  border-radius:13px;
+  background:var(--input);
+}
+
+.segment button{
+  flex:1;
+  min-width:0;
+  padding:10px 4px;
+  border:0;
+  border-radius:10px;
+  background:transparent;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:700;
+}
+
+.segment button small{
+  display:block;
+  margin-top:2px;
+  font-size:9px;
+  font-weight:400;
+  opacity:.75;
+}
+
+.segment button.active{
+  background:var(--card);
+  color:var(--text);
+  box-shadow:0 1px 7px rgba(0,0,0,.18);
+}
+
+.label{
+  margin:5px 0 6px;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.switch-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:7px 0;
+}
+
+.switch{
+  position:relative;
+  width:47px;
+  height:28px;
+  padding:0;
+  border:0;
+  border-radius:20px;
+  background:var(--border);
+}
+
+.switch:after{
+  content:"";
+  position:absolute;
+  top:3px;
+  left:3px;
+  width:22px;
+  height:22px;
+  border-radius:50%;
+  background:#fff;
+  transition:.2s;
+}
+
+.switch.active{
+  background:var(--accent);
+}
+
+.switch.active:after{
+  left:22px;
+}
+
+.profile{
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:6px 12px;
+  padding:12px;
+  margin-top:4px;
+  border-radius:14px;
+  background:var(--input);
+  font-size:12px;
+}
+
+.profile dt{color:var(--muted)}
+
+.profile dd{
+  margin:0;
+  text-align:right;
+  word-break:break-word;
+}
+
+.primary{
+  width:100%;
+  padding:17px;
+  border:0;
+  border-radius:18px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  color:#fff;
+  font-size:17px;
+  font-weight:800;
+  box-shadow:0 8px 25px rgba(118,87,255,.30);
+}
+
+.primary:disabled{
+  opacity:.35;
+  box-shadow:none;
+  cursor:not-allowed;
+}
+
+.two{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:10px;
+}
+
+@media(max-width:500px){
+  .two{
+    grid-template-columns:1fr;
+  }
+}
+
+.progress-row{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.progress-row strong{color:var(--text)}
+
+.progress{
+  height:14px;
+  margin:10px 0;
+  overflow:hidden;
+  border-radius:10px;
+  background:var(--input);
+}
+
+.progress i{
+  display:block;
+  width:0;
+  height:100%;
+  border-radius:10px;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  transition:width .25s linear;
+}
+
+.quality{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:10px;
+  padding:11px 12px;
+  border-radius:14px;
+  background:var(--input);
+  font-size:12px;
+  color:var(--muted);
+}
+
+.quality strong{color:var(--text)}
+
+.enhance-box{
+  padding:12px;
+  border-radius:15px;
+  background:var(--input);
+  margin-top:10px;
+}
+
+.enhance-title{
+  font-weight:700;
+  font-size:13px;
+}
+
+.enhance-description{
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.45;
+  margin-top:4px;
+}
+
+#output{
+  display:block;
+  width:100%;
+  max-height:55vh;
+  border-radius:14px;
+  background:#000;
+}
+
+.note{
+  margin:8px 0 0;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.5;
+}
+
+.error{
+  color:var(--danger);
+}
+
+.hidden{
+  display:none!important;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<header>
+  <div class="logo">
+    Uniq<span>Pro</span>
+  </div>
+
+  <div class="status-chip" id="fileStatus">
+    Видео не выбрано
+  </div>
+</header>
+
+<div class="grid">
+
+<div class="sticky">
+
+<div class="card">
+
+<div class="title">
+  <span class="number">1</span>
+  Видео
+</div>
+
+<div class="stage">
+
+<label class="upload" for="fileInput">
+
+  <div class="upload-icon">🎬</div>
+
+  <strong>Выбрать видео</strong>
+
+  <small>MP4 / MOV / M4V / WebM</small>
+
+  <small>Фото или Файлы</small>
+
+</label>
+
+<input
+  id="fileInput"
+  type="file"
+  accept="video/*,.mp4,.mov,.m4v,.webm"
+>
+
+<video
+  id="preview"
+  controls
+  muted
+  playsinline
+></video>
+
+</div>
+
+<div class="preview-tools hidden" id="previewTools">
+
+<button class="small-btn" id="pauseButton" type="button">
+  ⏯ Пауза
+</button>
+
+<label class="small-btn" for="fileInput">
+  Другое видео
+</label>
+
+<span id="videoInfo"></span>
+
+</div>
+
+</div>
+
+</div>
+
+<div>
+
+<div class="card">
+
+<div class="title">
+  <span class="number">2</span>
+  Формат
+</div>
+
+<div class="segment" id="formatButtons">
+
+<button class="active" data-value="9:16" type="button">
+  9:16
+  <small>TikTok · Shorts</small>
+</button>
+
+<button data-value="4:5" type="button">
+  4:5
+  <small>Instagram</small>
+</button>
+
+<button data-value="1:1" type="button">
+  1:1
+  <small>Square</small>
+</button>
+
+<button data-value="16:9" type="button">
+  16:9
+  <small>YouTube</small>
+</button>
+
+</div>
+
+<div class="label">
+  Вписывание кадра
+</div>
+
+<div class="segment" id="fitButtons">
+
+<button class="active" data-value="smart" type="button">
+  Умный
+</button>
+
+<button data-value="fill" type="button">
+  Кроп
+</button>
+
+<button data-value="blur" type="button">
+  Blur
+</button>
+
+</div>
+
+</div>
+
+<div class="card">
+
+<div class="title">
+  <span class="number">3</span>
+  Уникализация
+</div>
+
+<div class="segment" id="levelButtons">
+
+<button data-value="1" type="button">
+  Лёгкий
+</button>
+
+<button class="active" data-value="2" type="button">
+  Средний
+</button>
+
+<button data-value="3" type="button">
+  Сильный
+</button>
+
+</div>
+
+<div class="switch-row">
+
+<span>Зеркальное отражение</span>
+
+<button class="switch" id="mirrorButton" type="button"></button>
+
+</div>
+
+<div class="label" style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-top:10px;
+">
+
+<span>Улучшение качества</span>
+
+</div>
+
+<div class="segment" id="enhanceButtons">
+
+<button class="active" data-value="off" type="button">
+  Выкл.
+</button>
+
+<button data-value="standard" type="button">
+  Standard
+</button>
+
+<button data-value="high" type="button">
+  High
+</button>
+
+</div>
+
+<div class="enhance-box">
+
+<div class="enhance-title">
+  ✨ Улучшение качества
+</div>
+
+<div class="enhance-description">
+  Standard — шумоподавление + резкость.
+  High — более сильный upscale + denoise + sharpening.
+  Обработка выполняется FFmpeg на сервере.
+</div>
+
+</div>
+
+<div class="label" style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-top:10px;
+">
+
+<span>Профиль обработки</span>
+
+<button class="small-btn" id="randomButton" type="button">
+  🎲 Новый
+</button>
+
+</div>
+
+<dl class="profile" id="profile"></dl>
+
+<div class="quality">
+
+<span>Выход</span>
+
+<strong id="quality">
+  Ожидание видео
+</strong>
+
+</div>
+
+</div>
+
+<button
+  class="primary"
+  id="processButton"
+  type="button"
+  disabled
+>
+  Уникализировать видео
+</button>
+
+<div class="card hidden" id="progressCard" style="margin-top:14px">
+
+<div class="progress-row">
+
+<strong id="processStatus">
+  Подготовка…
+</strong>
+
+<strong id="percent">
+  0%
+</strong>
+
+</div>
+
+<div class="progress">
+  <i id="progressBar"></i>
+</div>
+
+<div class="progress-row">
+
+<span id="elapsed">Прошло 0:00</span>
+
+<span id="eta">Осталось —</span>
+
+</div>
+
+<p class="note" id="serverNote">
+  Загрузка видео на сервер…
+</p>
+
+</div>
+
+<div class="card hidden" id="resultCard" style="margin-top:14px">
+
+<div class="title">
+  <span class="number">✓</span>
+  Готово
+</div>
+
+<video
+  id="output"
+  controls
+  playsinline
+></video>
+
+<div class="two">
+
+<button class="primary" id="saveButton" type="button">
+  📲 Сохранить видео
+</button>
+
+<button
+  class="small-btn"
+  id="downloadButton"
+  type="button"
+  style="padding:14px"
+>
+  ⬇️ Скачать
+</button>
+
+</div>
+
+<p class="note" id="resultInfo"></p>
+
+</div>
+
+<p class="note">
+  Видео обрабатывается на сервере FFmpeg и возвращается
+  в формате MP4 H.264/AAC.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+"use strict";
+
+const API_BASE = "";
+
+const state = {
+  format:"9:16",
+  fit:"smart",
+  level:2,
+  mirror:false,
+  enhance:"off",
+
+  file:null,
+  video:null,
+
+  profile:null,
+
+  jobId:null,
+  blob:null,
+  outputName:null,
+  outputURL:null,
+
+  busy:false
+};
+
+const $ = id => document.getElementById(id);
+
+const FORMATS = {
+  "9:16":[1080,1920],
+  "4:5":[1080,1350],
+  "1:1":[1080,1080],
+  "16:9":[1920,1080]
+};
+
+const DEVICES = [
+  ["Apple","iPhone 15 Pro","iOS"],
+  ["Apple","iPhone 14 Pro","iOS"],
+  ["Apple","iPhone 13","iOS"],
+  ["Samsung","Galaxy S23","Android"],
+  ["Google","Pixel 8","Android"],
+  ["Xiaomi","Xiaomi 13","Android"]
+];
+
+function random(min,max){
+  return min + Math.random() * (max-min);
+}
+
+function pick(array){
+  return array[Math.floor(Math.random()*array.length)];
+}
+
+function clamp(value,min,max){
+  return Math.max(min,Math.min(max,value));
+}
+
+function timeText(seconds){
+
+  seconds=Math.max(0,Math.floor(seconds));
+
+  const m=Math.floor(seconds/60);
+  const s=String(seconds%60).padStart(2,"0");
+
+  return `${m}:${s}`;
+}
+
+function bytesText(bytes){
+
+  if(bytes < 1024*1024){
+    return `${(bytes/1024).toFixed(0)} KB`;
+  }
+
+  return `${(bytes/1048576).toFixed(1)} MB`;
+}
+
+function randomName(){
+
+  const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+  let result="";
+
+  for(let i=0;i<8;i++){
+    result+=chars[Math.floor(Math.random()*chars.length)];
+  }
+
+  return result;
+}
+
+function createProfile(){
+
+  const device=pick(DEVICES);
+
+  state.profile={
+    device,
+
+    date:new Date(
+      Date.now()-random(1,60)*86400000
+    ),
+
+    name:
+      device[0]==="Apple"
+        ? `IMG_${Math.floor(random(1000,9999))}`
+        : `VID_${randomName()}`,
+
+    zoom:
+      1+random(
+        .003,
+        .010+state.level*.004
+      ),
+
+    dx:
+      random(-.006,.006)*state.level,
+
+    dy:
+      random(-.006,.006)*state.level
+  };
+
+  renderProfile();
+}
+
+function renderProfile(){
+
+  const p=state.profile;
+
+  $("profile").innerHTML=`
+
+    <dt>Устройство</dt>
+    <dd>${p.device[0]} ${p.device[1]}</dd>
+
+    <dt>ПО</dt>
+    <dd>${p.device[2]}</dd>
+
+    <dt>Дата</dt>
+    <dd>${p.date.toLocaleString("ru-RU")}</dd>
+
+    <dt>Файл</dt>
+    <dd>${p.name}</dd>
+
+    <dt>Зум</dt>
+    <dd>${((p.zoom-1)*100).toFixed(2)}%</dd>
+
+  `;
+}
+
+function setupButtons(containerId,callback){
+
+  $(containerId).addEventListener("click",event=>{
+
+    const button=event.target.closest("button");
+
+    if(!button || state.busy)return;
+
+    $(containerId)
+      .querySelectorAll("button")
+      .forEach(item=>item.classList.remove("active"));
+
+    button.classList.add("active");
+
+    callback(button.dataset.value);
+  });
+}
+
+setupButtons("formatButtons",value=>{
+  state.format=value;
+  updateQuality();
+});
+
+setupButtons("fitButtons",value=>{
+  state.fit=value;
+});
+
+setupButtons("levelButtons",value=>{
+  state.level=Number(value);
+  createProfile();
+});
+
+setupButtons("enhanceButtons",value=>{
+  state.enhance=value;
+});
+
+$("mirrorButton").addEventListener("click",()=>{
+
+  if(state.busy)return;
+
+  state.mirror=!state.mirror;
+
+  $("mirrorButton")
+    .classList.toggle("active",state.mirror);
+});
+
+$("randomButton").addEventListener("click",()=>{
+
+  if(state.busy)return;
+
+  createProfile();
+});
+
+function updateQuality(){
+
+  if(!state.file){
+
+    $("quality").textContent="Ожидание видео";
+
+    return;
+  }
+
+  const [width,height]=FORMATS[state.format];
+
+  $("quality").textContent=
+    `${width}×${height} · MP4 H.264`;
+
+}
+
+createProfile();
+updateQuality();
+
+/* =========================
+   VIDEO SELECTION
+========================= */
+
+$("fileInput").addEventListener("change",event=>{
+
+  const file=event.target.files?.[0];
+
+  if(file){
+    loadVideo(file);
+  }
+});
+
+async function loadVideo(file){
+
+  if(state.busy)return;
+
+  if(
+    !file.type.startsWith("video/") &&
+    !/\.(mp4|mov|m4v|webm)$/i.test(file.name)
+  ){
+
+    alert("Выберите MP4, MOV, M4V или WebM.");
+
+    return;
+  }
+
+  if(file.size > 500*1024*1024){
+
+    alert(
+      "Файл слишком большой.\n\n"+
+      "Максимальный размер: 500 MB."
+    );
+
+    return;
+  }
+
+  state.file=file;
+
+  const url=URL.createObjectURL(file);
+
+  const video=$("preview");
+
+  video.src=url;
+
+  video.style.display="block";
+
+  document
+    .querySelector(".upload")
+    .classList.add("hidden");
+
+  $("previewTools").classList.remove("hidden");
+
+  $("fileStatus").textContent=file.name;
+
+  video.onloadedmetadata=()=>{
+
+    $("videoInfo").textContent=
+      `${video.videoWidth}×${video.videoHeight} · `+
+      `${timeText(video.duration)} · `+
+      `${bytesText(file.size)}`;
+
+    updateQuality();
+
+    $("processButton").disabled=false;
+
+    createProfile();
+  };
+
+  state.video=video;
+
+  try{
+    await video.play();
+  }catch{}
+}
+
+$("pauseButton").addEventListener("click",async()=>{
+
+  const video=state.video;
+
+  if(!video)return;
+
+  if(video.paused){
+
+    try{
+      await video.play();
+    }catch{}
+
+    $("pauseButton").textContent="⏯ Пауза";
+
+  }else{
+
+    video.pause();
+
+    $("pauseButton").textContent="▶️ Играть";
+  }
+});
+
+/* =========================
+   UPLOAD
+========================= */
+
+function uploadFile(file){
+
+  return new Promise((resolve,reject)=>{
+
+    const xhr=new XMLHttpRequest();
+
+    xhr.open(
+      "POST",
+      `${API_BASE}/api/jobs`
+    );
+
+    xhr.responseType="json";
+
+    xhr.upload.onprogress=event=>{
+
+      if(event.lengthComputable){
+
+        const percent=
+          Math.round(
+            event.loaded/event.total*20
+          );
+
+        setProgress(
+          percent,
+          `Загрузка видео…`
+        );
+      }
+    };
+
+    xhr.onload=()=>{
+
+      if(xhr.status>=200 && xhr.status<300){
+
+        resolve(xhr.response);
+
+      }else{
+
+        reject(
+          new Error(
+            xhr.response?.error ||
+            `Ошибка сервера: ${xhr.status}`
+          )
+        );
+      }
+    };
+
+    xhr.onerror=()=>{
+      reject(
+        new Error("Ошибка соединения с сервером.")
+      );
+    };
+
+    const formData=new FormData();
+
+    formData.append("video",file);
+
+    formData.append(
+      "settings",
+      JSON.stringify({
+        format:state.format,
+        fit:state.fit,
+        level:state.level,
+        mirror:state.mirror,
+        enhance:state.enhance
+      })
+    );
+
+    xhr.send(formData);
+  });
+}
+
+/* =========================
+   PROGRESS
+========================= */
+
+let startedAt=0;
+
+function setProgress(percent,status){
+
+  percent=clamp(percent,0,100);
+
+  $("progressBar").style.width=`${percent}%`;
+
+  $("percent").textContent=
+    `${Math.round(percent)}%`;
+
+  $("processStatus").textContent=status;
+
+  if(startedAt){
+
+    const elapsed=
+      (Date.now()-startedAt)/1000;
+
+    $("elapsed").textContent=
+      `Прошло ${timeText(elapsed)}`;
+  }
+}
+
+async function pollJob(jobId){
+
+  while(true){
+
+    const response=
+      await fetch(
+        `${API_BASE}/api/jobs/${jobId}`
+      );
+
+    if(!response.ok){
+
+      throw new Error(
+        "Не удалось получить статус обработки."
+      );
+    }
+
+    const job=await response.json();
+
+    if(job.status==="processing"){
+
+      const serverProgress=
+        Number(job.progress||0);
+
+      /*
+        20–98% reserved for FFmpeg.
+      */
+
+      const percent=
+        20+
+        serverProgress*.78;
+
+      setProgress(
+        percent,
+        job.message || "Обработка видео…"
+      );
+
+      $("eta").textContent=
+        serverProgress > 0
+          ? `FFmpeg ${Math.round(serverProgress)}%`
+          : "Обработка…";
+    }
+
+    if(job.status==="done"){
+
+      setProgress(
+        100,
+        "Готово ✓"
+      );
+
+      $("eta").textContent="Осталось 0:00";
+
+      return job;
+    }
+
+    if(job.status==="error"){
+
+      throw new Error(
+        job.error ||
+        "Ошибка обработки видео."
+      );
+    }
+
+    await new Promise(
+      resolve=>setTimeout(resolve,1000)
+    );
+  }
+}
+
+/* =========================
+   PROCESS
+========================= */
+
+$("processButton").addEventListener(
+  "click",
+  async()=>{
+
+    if(
+      state.busy ||
+      !state.file
+    ){
+      return;
+    }
+
+    state.busy=true;
+
+    $("processButton").disabled=true;
+
+    $("progressCard")
+      .classList.remove("hidden");
+
+    $("resultCard")
+      .classList.add("hidden");
+
+    $("serverNote").textContent=
+      "Загрузка исходного видео…";
+
+    startedAt=Date.now();
+
+    setProgress(
+      0,
+      "Подготовка…"
+    );
+
+    try{
+
+      const response=
+        await uploadFile(state.file);
+
+      state.jobId=response.jobId;
+
+      $("serverNote").textContent=
+        "Видео передано на сервер. FFmpeg начал обработку.";
+
+      const job=
+        await pollJob(
+          state.jobId
+        );
+
+      await showResult(job);
+
+    }catch(error){
+
+      console.error(error);
+
+      $("processStatus").textContent=
+        "Ошибка";
+
+      $("serverNote").textContent=
+        error.message;
+
+      $("serverNote").classList.add("error");
+
+      alert(
+        "Ошибка обработки:\n\n"+
+        error.message
+      );
+
+    }finally{
+
+      state.busy=false;
+
+      $("processButton").disabled=
+        !state.file;
+    }
+  }
+);
+
+/* =========================
+   RESULT
+========================= */
+
+async function showResult(job){
+
+  const response=
+    await fetch(
+      `${API_BASE}${job.downloadUrl}`
+    );
+
+  if(!response.ok){
+
+    throw new Error(
+      "Не удалось скачать готовое видео."
+    );
+  }
+
+  state.blob=
+    await response.blob();
+
+  state.outputName=
+    job.outputName ||
+    "uniq-pro-video.mp4";
+
+  if(state.outputURL){
+    URL.revokeObjectURL(state.outputURL);
+  }
+
+  state.outputURL=
+    URL.createObjectURL(state.blob);
+
+  $("output").src=
+    state.outputURL;
+
+  $("resultInfo").textContent=
+    `${state.outputName} · `+
+    `${bytesText(state.blob.size)}`;
+
+  $("resultCard")
+    .classList.remove("hidden");
+
+  $("resultCard")
+    .scrollIntoView({
+      behavior:"smooth",
+      block:"start"
+    });
+}
+
+/* =========================
+   DOWNLOAD
+========================= */
+
+$("downloadButton").addEventListener(
+  "click",
+  ()=>{
+
+    if(!state.blob)return;
+
+    const url=
+      URL.createObjectURL(state.blob);
+
+    const a=document.createElement("a");
+
+    a.href=url;
+
+    a.download=
+      state.outputName ||
+      "uniq-pro-video.mp4";
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+
+    setTimeout(
+      ()=>URL.revokeObjectURL(url),
+      5000
+    );
+  }
+);
+
+/* =========================
+   IOS SHARE / SAVE
+========================= */
+
+$("saveButton").addEventListener(
+  "click",
+  async()=>{
+
+    if(!state.blob)return;
+
+    const file=
+      new File(
+        [state.blob],
+        state.outputName ||
+        "uniq-pro-video.mp4",
+        {
+          type:"video/mp4"
+        }
+      );
+
+    try{
+
+      if(
+        navigator.share &&
+        navigator.canShare &&
+        navigator.canShare({
+          files:[file]
+        })
+      ){
+
+        await navigator.share({
+          files:[file],
+          title:"Uniq Pro",
+          text:"Готовое видео"
+        });
+
+        return;
+      }
+
+    }catch(error){
+
+      if(error?.name==="AbortError"){
+        return;
+      }
+    }
+
+    const url=
+      URL.createObjectURL(state.blob);
+
+    const a=document.createElement("a");
+
+    a.href=url;
+
+    a.download=
+      state.outputName ||
+      "uniq-pro-video.mp4";
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+
+    setTimeout(
+      ()=>URL.revokeObjectURL(url),
+      5000
+    );
+  }
+);
+</script>
+
+</body>
+</html>
